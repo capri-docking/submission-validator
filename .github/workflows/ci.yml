@@ -17,7 +17,6 @@ jobs:
         with:
           python-version: "3.14"
 
-      - run: pip install -e ".[dev]"
+      - run: pip install ".[dev]"
 
       - run: pytest -v
-
