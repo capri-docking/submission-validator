@@ -25,6 +25,8 @@ jobs:
 
       - run: black --check .
 
+      - run: isort --check-only .
+
       - run: mypy .
 
       - run: pytest -v
