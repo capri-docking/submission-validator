@@ -2,9 +2,24 @@
 name = "submission-validator"
 version = "0.1.0"
 description = "Validate CAPRI submissions"
-authors = [{ name = "placeholder", email = "email@email.com" }]
+authors = [
+  { name = "Rodrigo Vargas Honorato", email = "rvhonorato@protonmail.com" },
+]
 readme = "README.md"
 requires-python = ">=3.10"
+license = "Apache-2.0"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
 
 dependencies = ["pdb-tools>=2.5.0", "numpy>=1.24"]
 
