@@ -2,9 +2,9 @@
 
 ## Tier 1 - file format
 
-- [ ] Follows PDB standard
-- [ ] Overlapping residue numbers
-- [ ] Repeated residues in the same chain
+- [x] Follows PDB standard
+- [x] Overlapping residue numbers
+- [x] Repeated residues in the same chain
 - [ ] ...
 
 ## Tier 2 - structural
