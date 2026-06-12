@@ -1,10 +1,21 @@
 import pytest
 
 
-def _atom_line(serial, atom_name, res_name, chain, res_seq, icode=" "):
+def _atom_line(
+    serial,
+    atom_name,
+    res_name,
+    chain,
+    res_seq,
+    icode=" ",
+    x=1.0,
+    y=2.0,
+    z=3.0,
+    element="C",
+):
     return (
         f"ATOM  {serial:>5} {atom_name:<4} {res_name:>3} {chain}{res_seq:>4}{icode}   "
-        f"{1.0:>8.3f}{2.0:>8.3f}{3.0:>8.3f}{1.00:>6.2f}{0.00:>6.2f}      {'':<4}{'C':>2}  "
+        f"{x:>8.3f}{y:>8.3f}{z:>8.3f}{1.00:>6.2f}{0.00:>6.2f}      {'':<4}{element:>2}  "
     )
 
 
