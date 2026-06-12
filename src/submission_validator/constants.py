@@ -1,0 +1,3 @@
+CONTACT_DISTANCE = 5.0  # Angstrom
+CLASH_DISTANCE = 2.0  # Angstrom
+MAX_CLASH_PERCENT = 5.0

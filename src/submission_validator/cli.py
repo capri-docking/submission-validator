@@ -1,8 +1,11 @@
 import argparse
+import logging
 import sys
 
 from submission_validator.logging_config import configure_logging
-from submission_validator.validator import run_tier1_checks
+from submission_validator.validator import run_tier1_checks, run_tier2_checks
+
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -16,17 +19,24 @@ def main():
 
     configure_logging(verbose=args.verbose)
 
-    results = run_tier1_checks(args.pdb_file)
+    tier1_results = run_tier1_checks(args.pdb_file)
+    tier2_results = run_tier2_checks(args.pdb_file)
 
-    for name, passed in results.items():
+    logger.info("Tier 1")
+    for name, passed in tier1_results.items():
         status = "✅" if passed else "❌"
-        print(f"{status} {name}")
+        logger.info("%s %s", status, name)
 
-    if all(results.values()):
-        print("validation passed! ✅")
+    logger.info("Tier 2")
+    for name, passed in tier2_results.items():
+        status = "✅" if passed else "❌"
+        logger.info("%s %s", status, name)
+
+    if all(tier1_results.values()) and all(tier2_results.values()):
+        logger.info("validation passed! ✅")
         return 0
     else:
-        print("validation failed! ❌")
+        logger.info("validation failed! ❌")
         return 1
 
 

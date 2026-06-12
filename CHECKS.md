@@ -9,8 +9,8 @@
 
 ## Tier 2 - structural
 
-- [ ] Chains not in contact
-- [ ] % of clashes
+- [x] Chains not in contact
+- [x] % of clashes
 - [ ] ...
 
 ## Tier 3 - template
