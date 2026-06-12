@@ -21,8 +21,9 @@ def check_pdb_format(file_path: Path) -> bool:
     try:
         with open(file_path, "r") as f:
             # Redirect stdout and stderr to suppress pdb-tools output
-            with redirect_stdout(open(os.devnull, "w")), redirect_stderr(
-                open(os.devnull, "w")
+            with (
+                redirect_stdout(open(os.devnull, "w")),
+                redirect_stderr(open(os.devnull, "w")),
             ):
                 result = validate_pdb_format(f)
                 return result == 0  # 0 means no errors
