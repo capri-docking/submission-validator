@@ -1,4 +1,4 @@
-import type { ValidationResult } from "../hooks/usePyodide.ts";
+import type { CheckResult, ValidationResult } from "../hooks/usePyodide.ts";
 
 interface Props {
   filename: string;
@@ -6,11 +6,26 @@ interface Props {
   validating: boolean;
 }
 
-function CheckRow({ name, passed }: { name: string; passed: boolean }) {
+function CheckRow({
+  name,
+  passed,
+  message,
+}: {
+  name: string;
+  passed: boolean;
+  message: string | null;
+}) {
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0">
-      <span className="text-sm text-gray-700">{name}</span>
-      <span className="text-base" title={passed ? "Pass" : "Fail"}>
+    <div className="flex items-start justify-between py-2.5 border-b border-gray-100 last:border-0">
+      <div className="min-w-0 flex-1">
+        <span className="text-sm text-gray-700">{name}</span>
+        {!passed && message && (
+          <pre className="text-xs text-red-500 mt-1 whitespace-pre-wrap font-mono bg-red-50 rounded p-2 max-h-40 overflow-y-auto">
+            {message}
+          </pre>
+        )}
+      </div>
+      <span className="text-base shrink-0 ml-4" title={passed ? "Pass" : "Fail"}>
         {passed ? "✅" : "❌"}
       </span>
     </div>
@@ -22,7 +37,7 @@ function TierSection({
   checks,
 }: {
   label: string;
-  checks: Record<string, boolean>;
+  checks: Record<string, CheckResult>;
 }) {
   return (
     <div>
@@ -30,8 +45,13 @@ function TierSection({
         {label}
       </p>
       <div className="divide-y divide-gray-100">
-        {Object.entries(checks).map(([name, passed]) => (
-          <CheckRow key={name} name={name} passed={passed} />
+        {Object.entries(checks).map(([name, check]) => (
+          <CheckRow
+            key={name}
+            name={name}
+            passed={check.passed}
+            message={check.message}
+          />
         ))}
       </div>
     </div>
@@ -70,7 +90,7 @@ export function ValidationResults({ filename, result, validating }: Props) {
     ...Object.values(result.tier1),
     ...Object.values(result.tier2),
   ];
-  const passed = allChecks.every(Boolean);
+  const passed = allChecks.every((c) => c.passed);
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">

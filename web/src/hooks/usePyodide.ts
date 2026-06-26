@@ -20,9 +20,14 @@ interface PyodideInstance {
   FS: PyodideFS;
 }
 
+export interface CheckResult {
+  passed: boolean;
+  message: string | null;
+}
+
 export interface ValidationResult {
-  tier1: Record<string, boolean>;
-  tier2: Record<string, boolean>;
+  tier1: Record<string, CheckResult>;
+  tier2: Record<string, CheckResult>;
   overview: Record<string, string>;
 }
 
@@ -43,11 +48,14 @@ from pathlib import Path
 from submission_validator.validator import run_tier1_checks, run_tier2_checks
 from submission_validator.overview import get_overview
 
+def _r(result):
+    return {"passed": result.passed, "message": result.message}
+
 def validate(pdb_content):
     path = Path("/tmp/upload.pdb")
     path.write_text(pdb_content)
-    t1 = run_tier1_checks(path)
-    t2 = run_tier2_checks(path)
+    t1 = {k: _r(v) for k, v in run_tier1_checks(path).items()}
+    t2 = {k: _r(v) for k, v in run_tier2_checks(path).items()}
     overview = get_overview(path)
     return json.dumps({"tier1": t1, "tier2": t2, "overview": overview})
 `;
