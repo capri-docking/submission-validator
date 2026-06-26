@@ -8,6 +8,7 @@ from submission_validator.constants import (
     CONTACT_DISTANCE,
     MAX_CLASH_PERCENT,
 )
+from submission_validator.result import CheckResult
 
 logger = logging.getLogger(__name__)
 
@@ -57,19 +58,19 @@ def _pairwise_distances(coords_a: np.ndarray, coords_b: np.ndarray) -> np.ndarra
     return np.linalg.norm(diff, axis=-1)
 
 
-def check_chains_in_contact(file_path: Path) -> bool:
+def check_chains_in_contact(file_path: Path) -> CheckResult:
     """
     Check that every chain has at least one heavy atom within CONTACT_DISTANCE
     of a heavy atom from a different chain.
 
     Returns:
-        bool: True if every chain is in contact with at least one other chain
+        CheckResult: passed=True if every chain is in contact with at least one other chain
     """
     try:
         chains = _parse_heavy_atoms_by_chain(file_path)
         chain_ids = list(chains)
         if len(chain_ids) < 2:
-            return True
+            return CheckResult(passed=True)
 
         for chain_id in chain_ids:
             others = np.concatenate(
@@ -77,22 +78,25 @@ def check_chains_in_contact(file_path: Path) -> bool:
             )
             distances = _pairwise_distances(chains[chain_id], others)
             if distances.size == 0 or distances.min() >= CONTACT_DISTANCE:
-                return False
+                return CheckResult(
+                    passed=False,
+                    message=f"Chain {chain_id} is not in contact with any other chain",
+                )
 
-        return True
+        return CheckResult(passed=True)
     except Exception as e:
         logger.error("Error checking chain contacts: %s", e)
-        return False
+        return CheckResult(passed=False, message=str(e))
 
 
-def check_clash_percentage(file_path: Path) -> bool:
+def check_clash_percentage(file_path: Path) -> CheckResult:
     """
     Check that the percentage of clashing inter-chain heavy-atom pairs (distance
     < CLASH_DISTANCE) among all contact pairs (distance < CONTACT_DISTANCE) does
     not exceed MAX_CLASH_PERCENT.
 
     Returns:
-        bool: True if the clash percentage is within the allowed threshold
+        CheckResult: passed=True if the clash percentage is within the allowed threshold
     """
     try:
         chains = _parse_heavy_atoms_by_chain(file_path)
@@ -107,10 +111,18 @@ def check_clash_percentage(file_path: Path) -> bool:
                 clash_pairs += int(np.count_nonzero(distances < CLASH_DISTANCE))
 
         if contact_pairs == 0:
-            return True
+            return CheckResult(passed=True)
 
         clash_percent = clash_pairs / contact_pairs * 100
-        return clash_percent <= MAX_CLASH_PERCENT
+        if clash_percent <= MAX_CLASH_PERCENT:
+            return CheckResult(passed=True)
+        return CheckResult(
+            passed=False,
+            message=(
+                f"Clash percentage {clash_percent:.1f}% exceeds "
+                f"maximum {MAX_CLASH_PERCENT}%"
+            ),
+        )
     except Exception as e:
         logger.error("Error checking clash percentage: %s", e)
-        return False
+        return CheckResult(passed=False, message=str(e))

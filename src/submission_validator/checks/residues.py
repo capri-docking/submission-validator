@@ -1,6 +1,8 @@
 import logging
 from pathlib import Path
 
+from submission_validator.result import CheckResult
+
 logger = logging.getLogger(__name__)
 
 
@@ -38,43 +40,60 @@ def _parse_residues_by_chain(file_path: Path) -> dict[str, list[tuple[str, str, 
     return chains
 
 
-def check_overlapping_residue_numbers(file_path: Path) -> bool:
+def check_overlapping_residue_numbers(file_path: Path) -> CheckResult:
     """
     Check that no residue number (resSeq + iCode) is reused within a chain
     for a different residue identity.
 
     Returns:
-        bool: True if no overlapping residue numbers found, False otherwise
+        CheckResult: passed=True if no overlapping residue numbers found
     """
     try:
         chains = _parse_residues_by_chain(file_path)
-        for residues in chains.values():
+        for chain, residues in chains.items():
             seen: dict[tuple[str, str], str] = {}
             for res_seq, icode, res_name in residues:
                 key = (res_seq, icode)
                 if key in seen and seen[key] != res_name:
-                    return False
+                    return CheckResult(
+                        passed=False,
+                        message=(
+                            f"Chain {chain}: position ({res_seq}{icode.strip()}) "
+                            f"assigned to both {seen[key]} and {res_name}"
+                        ),
+                    )
                 seen[key] = res_name
-        return True
+        return CheckResult(passed=True)
     except Exception as e:
         logger.error("Error checking overlapping residue numbers: %s", e)
-        return False
+        return CheckResult(passed=False, message=str(e))
 
 
-def check_repeated_residues(file_path: Path) -> bool:
+def check_repeated_residues(file_path: Path) -> CheckResult:
     """
     Check that no residue (resSeq + iCode + resName) appears in more than
     one separate block within a chain.
 
     Returns:
-        bool: True if no repeated residues found, False otherwise
+        CheckResult: passed=True if no repeated residues found
     """
     try:
         chains = _parse_residues_by_chain(file_path)
-        for residues in chains.values():
+        for chain, residues in chains.items():
             if len(residues) != len(set(residues)):
-                return False
-        return True
+                seen: set[tuple[str, str, str]] = set()
+                for res_seq, icode, res_name in residues:
+                    key = (res_seq, icode, res_name)
+                    if key in seen:
+                        return CheckResult(
+                            passed=False,
+                            message=(
+                                f"Chain {chain}: residue {res_name} "
+                                f"({res_seq}{icode.strip()}) appears in non-contiguous blocks"
+                            ),
+                        )
+                    seen.add(key)
+        return CheckResult(passed=True)
     except Exception as e:
         logger.error("Error checking repeated residues: %s", e)
-        return False
+        return CheckResult(passed=False, message=str(e))

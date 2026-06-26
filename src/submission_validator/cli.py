@@ -29,14 +29,18 @@ def main():
         logger.info("  %s: %s", key, value)
 
     logger.info("Tier 1")
-    for name, passed in tier1_results.items():
-        status = "✅" if passed else "❌"
+    for name, result in tier1_results.items():
+        status = "✅" if result.passed else "❌"
         logger.info("%s %s", status, name)
+        if not result.passed and result.message:
+            logger.info("   → %s", result.message)
 
     logger.info("Tier 2")
-    for name, passed in tier2_results.items():
-        status = "✅" if passed else "❌"
+    for name, result in tier2_results.items():
+        status = "✅" if result.passed else "❌"
         logger.info("%s %s", status, name)
+        if not result.passed and result.message:
+            logger.info("   → %s", result.message)
 
     if all(tier1_results.values()) and all(tier2_results.values()):
         logger.info("validation passed! ✅")
