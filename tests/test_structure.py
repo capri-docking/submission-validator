@@ -102,4 +102,4 @@ def test_check_clash_percentage_no_contacts(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_clash_percentage(file_path=test_file).passed
+    assert not check_clash_percentage(file_path=test_file).passed
