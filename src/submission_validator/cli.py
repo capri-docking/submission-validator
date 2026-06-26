@@ -3,10 +3,10 @@ import logging
 import sys
 from pathlib import Path
 
+from submission_validator.fixes.tidy import fix_with_tidy
 from submission_validator.logging_config import configure_logging
 from submission_validator.overview import get_overview
 from submission_validator.result import CheckResult
-from submission_validator.fixes.tidy import fix_with_tidy
 from submission_validator.validator import run_tier1_checks, run_tier2_checks
 
 logger = logging.getLogger(__name__)
