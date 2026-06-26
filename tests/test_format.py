@@ -17,7 +17,7 @@ END"""
 
     try:
         result = check_pdb_format(file_path=Path(test_file))
-        assert result is False, "Validation should fail for malformed PDB file"
+        assert not result.passed, "Validation should fail for malformed PDB file"
     finally:
         os.unlink(test_file)
 
@@ -26,7 +26,7 @@ def test_check_pdb_format_with_line_length_errors():
     """Test validation fails with incorrect line lengths."""
     # Lines that are too long
     invalid_content = """HEADER    TEST FILE with extra content that makes it too long for PDB format
-ATOM      1  N   ALA A   1       1.000   2.000   3.000  1.00  0.00           N  
+ATOM      1  N   ALA A   1       1.000   2.000   3.000  1.00  0.00           N
 END with extra content"""
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".pdb", delete=False) as f:
@@ -36,7 +36,7 @@ END with extra content"""
     try:
         result = check_pdb_format(file_path=Path(test_file))
         assert (
-            result is False
+            not result.passed
         ), "Validation should fail for PDB file with line length errors"
     finally:
         os.unlink(test_file)
@@ -45,7 +45,7 @@ END with extra content"""
 def test_check_pdb_format_nonexistent():
     """Test validation handles nonexistent files gracefully."""
     result = check_pdb_format(file_path=Path("/nonexistent/path/file.pdb"))
-    assert result is False, "Validation should fail for nonexistent file"
+    assert not result.passed, "Validation should fail for nonexistent file"
 
 
 def test_check_pdb_format_empty():
@@ -58,7 +58,7 @@ def test_check_pdb_format_empty():
         result = check_pdb_format(file_path=Path(test_file))
         # pdb_validate considers empty files as valid (no format errors)
         assert (
-            result is True
+            result.passed
         ), "Validation should pass for empty PDB file (no format errors)"
     finally:
         os.unlink(test_file)
@@ -67,8 +67,8 @@ def test_check_pdb_format_empty():
 def test_check_pdb_format_with_missing_fields():
     """Test validation fails with missing required fields."""
     # ATOM line missing some fields
-    invalid_content = """HEADER    TEST FILE                                                                   
-ATOM      1  N   ALA A   1       1.000   2.000                                   
+    invalid_content = """HEADER    TEST FILE
+ATOM      1  N   ALA A   1       1.000   2.000
 END                                                                                   """
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".pdb", delete=False) as f:
@@ -78,7 +78,7 @@ END                                                                             
     try:
         result = check_pdb_format(file_path=Path(test_file))
         assert (
-            result is False
+            not result.passed
         ), "Validation should fail for PDB file with missing fields"
     finally:
         os.unlink(test_file)

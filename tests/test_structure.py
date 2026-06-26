@@ -11,7 +11,7 @@ def test_check_chains_in_contact_two_chains_in_contact(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_chains_in_contact(file_path=test_file) is True
+    assert check_chains_in_contact(file_path=test_file).passed
 
 
 def test_check_chains_in_contact_two_chains_far_apart(atom_line, write_pdb):
@@ -21,7 +21,7 @@ def test_check_chains_in_contact_two_chains_far_apart(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_chains_in_contact(file_path=test_file) is False
+    assert not check_chains_in_contact(file_path=test_file).passed
 
 
 def test_check_chains_in_contact_isolated_chain(atom_line, write_pdb):
@@ -32,7 +32,7 @@ def test_check_chains_in_contact_isolated_chain(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_chains_in_contact(file_path=test_file) is False
+    assert not check_chains_in_contact(file_path=test_file).passed
 
 
 def test_check_chains_in_contact_single_chain(atom_line, write_pdb):
@@ -42,7 +42,7 @@ def test_check_chains_in_contact_single_chain(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_chains_in_contact(file_path=test_file) is True
+    assert check_chains_in_contact(file_path=test_file).passed
 
 
 def test_check_chains_in_contact_ignores_hydrogens(atom_line, write_pdb):
@@ -54,7 +54,7 @@ def test_check_chains_in_contact_ignores_hydrogens(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_chains_in_contact(file_path=test_file) is False
+    assert not check_chains_in_contact(file_path=test_file).passed
 
 
 def test_check_clash_percentage_no_clashes(atom_line, write_pdb):
@@ -66,7 +66,7 @@ def test_check_clash_percentage_no_clashes(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_clash_percentage(file_path=test_file) is True
+    assert check_clash_percentage(file_path=test_file).passed
 
 
 def test_check_clash_percentage_above_threshold(atom_line, write_pdb):
@@ -79,7 +79,7 @@ def test_check_clash_percentage_above_threshold(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_clash_percentage(file_path=test_file) is False
+    assert not check_clash_percentage(file_path=test_file).passed
 
 
 def test_check_clash_percentage_within_threshold(atom_line, write_pdb):
@@ -92,7 +92,7 @@ def test_check_clash_percentage_within_threshold(atom_line, write_pdb):
         )
     test_file = write_pdb(lines)
 
-    assert check_clash_percentage(file_path=test_file) is True
+    assert check_clash_percentage(file_path=test_file).passed
 
 
 def test_check_clash_percentage_no_contacts(atom_line, write_pdb):
@@ -102,4 +102,4 @@ def test_check_clash_percentage_no_contacts(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_clash_percentage(file_path=test_file) is True
+    assert check_clash_percentage(file_path=test_file).passed

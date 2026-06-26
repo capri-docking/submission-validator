@@ -15,7 +15,7 @@ def test_check_overlapping_residue_numbers_detects_reused_number(atom_line, writ
 
     result = check_overlapping_residue_numbers(file_path=test_file)
     assert (
-        result is False
+        not result.passed
     ), "Should detect residue number reused for a different residue"
 
 
@@ -29,7 +29,7 @@ def test_check_overlapping_residue_numbers_sequential_is_ok(atom_line, write_pdb
     test_file = write_pdb(lines)
 
     result = check_overlapping_residue_numbers(file_path=test_file)
-    assert result is True, "Sequential residue numbering should pass"
+    assert result.passed, "Sequential residue numbering should pass"
 
 
 def test_check_overlapping_residue_numbers_allows_insertion_codes(atom_line, write_pdb):
@@ -41,14 +41,14 @@ def test_check_overlapping_residue_numbers_allows_insertion_codes(atom_line, wri
     test_file = write_pdb(lines)
 
     result = check_overlapping_residue_numbers(file_path=test_file)
-    assert result is True, "Distinct insertion codes should not be an overlap"
+    assert result.passed, "Distinct insertion codes should not be an overlap"
 
 
 def test_check_overlapping_residue_numbers_empty_file(write_pdb):
     test_file = write_pdb([])
 
     result = check_overlapping_residue_numbers(file_path=test_file)
-    assert result is True, "Empty file should pass (no residues)"
+    assert result.passed, "Empty file should pass (no residues)"
 
 
 def test_check_repeated_residues_detects_non_contiguous_repeat(atom_line, write_pdb):
@@ -62,7 +62,7 @@ def test_check_repeated_residues_detects_non_contiguous_repeat(atom_line, write_
     test_file = write_pdb(lines)
 
     result = check_repeated_residues(file_path=test_file)
-    assert result is False, "Should detect a non-contiguous repeated residue"
+    assert not result.passed, "Should detect a non-contiguous repeated residue"
 
 
 def test_check_repeated_residues_normal_chain_is_ok(atom_line, write_pdb):
@@ -74,7 +74,7 @@ def test_check_repeated_residues_normal_chain_is_ok(atom_line, write_pdb):
     test_file = write_pdb(lines)
 
     result = check_repeated_residues(file_path=test_file)
-    assert result is True, "Normal chain should pass"
+    assert result.passed, "Normal chain should pass"
 
 
 def test_check_repeated_residues_consecutive_atoms_not_flagged(atom_line, write_pdb):
@@ -87,11 +87,11 @@ def test_check_repeated_residues_consecutive_atoms_not_flagged(atom_line, write_
     test_file = write_pdb(lines)
 
     result = check_repeated_residues(file_path=test_file)
-    assert result is True, "Consecutive atoms of the same residue are not a repeat"
+    assert result.passed, "Consecutive atoms of the same residue are not a repeat"
 
 
 def test_check_repeated_residues_empty_file(write_pdb):
     test_file = write_pdb([])
 
     result = check_repeated_residues(file_path=test_file)
-    assert result is True, "Empty file should pass (no residues)"
+    assert result.passed, "Empty file should pass (no residues)"

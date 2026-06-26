@@ -57,9 +57,9 @@ def test_run_tier1_checks_flags_failing_check(atom_line, write_pdb):
     test_file = write_pdb(lines)
 
     results = run_tier1_checks(file_path=test_file)
-    assert results["PDB format"] is True
-    assert results["Overlapping residue numbers"] is True
-    assert results["Repeated residues in chain"] is False
+    assert results["PDB format"].passed
+    assert results["Overlapping residue numbers"].passed
+    assert not results["Repeated residues in chain"].passed
 
 
 def test_run_tier2_checks_reports_each_check(atom_line, write_pdb):
@@ -83,4 +83,4 @@ def test_run_tier2_checks_flags_isolated_chain(atom_line, write_pdb):
     test_file = write_pdb(lines)
 
     results = run_tier2_checks(file_path=test_file)
-    assert results["Chains in contact"] is False
+    assert not results["Chains in contact"].passed
