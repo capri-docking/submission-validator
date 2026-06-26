@@ -24,7 +24,7 @@ submission-validator <path-to-pdb-file>
 
 ## Web app (browser)
 
-The validator also runs entirely in the browser via [Pyodide](https://pyodide.org) — no server required.
+The validator also runs entirely in the browser via [Pyodide](https://pyodide.org)
 
 **Prerequisites:** Node.js ≥ 20 on PATH.
 
