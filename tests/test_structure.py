@@ -42,7 +42,7 @@ def test_check_chains_in_contact_single_chain(atom_line, write_pdb):
     ]
     test_file = write_pdb(lines)
 
-    assert check_chains_in_contact(file_path=test_file).passed
+    assert not check_chains_in_contact(file_path=test_file).passed
 
 
 def test_check_chains_in_contact_ignores_hydrogens(atom_line, write_pdb):

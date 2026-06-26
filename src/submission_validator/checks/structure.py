@@ -70,7 +70,10 @@ def check_chains_in_contact(file_path: Path) -> CheckResult:
         chains = _parse_heavy_atoms_by_chain(file_path)
         chain_ids = list(chains)
         if len(chain_ids) < 2:
-            return CheckResult(passed=True)
+            return CheckResult(
+                passed=False,
+                message="File contains only one chain; at least two chains are required",
+            )
 
         for chain_id in chain_ids:
             others = np.concatenate(
