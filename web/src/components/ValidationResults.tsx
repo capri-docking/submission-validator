@@ -38,6 +38,33 @@ function TierSection({
   );
 }
 
+const OVERVIEW_LABELS: Record<string, string> = {
+  "No. models": "Models",
+  "No. chains": "Chains",
+  "No. residues": "Residues",
+  "No. atoms": "Atoms",
+  "No. HETATM": "HETATM",
+  "Multiple Occ.": "Multiple Occ.",
+  "Res. Inserts": "Res. Inserts",
+};
+
+function Overview({ data }: { data: Record<string, string> }) {
+  const entries = Object.entries(OVERVIEW_LABELS).flatMap(([key, label]) =>
+    key in data ? [[label, data[key]] as [string, string]] : []
+  );
+  if (entries.length === 0) return null;
+  return (
+    <div className="px-4 py-3 border-b border-gray-100 grid grid-cols-4 gap-x-4 gap-y-2">
+      {entries.map(([label, value]) => (
+        <div key={label}>
+          <p className="text-xs text-gray-400">{label}</p>
+          <p className="text-sm font-medium text-gray-700">{value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ValidationResults({ filename, result, validating }: Props) {
   const allChecks = [
     ...Object.values(result.tier1),
@@ -57,6 +84,8 @@ export function ValidationResults({ filename, result, validating }: Props) {
           </span>
         )}
       </div>
+
+      <Overview data={result.overview} />
 
       <div className="px-4 py-3 space-y-4">
         <TierSection label="Tier 1 — Format & Residues" checks={result.tier1} />

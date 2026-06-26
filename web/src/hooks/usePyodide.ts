@@ -23,6 +23,7 @@ interface PyodideInstance {
 export interface ValidationResult {
   tier1: Record<string, boolean>;
   tier2: Record<string, boolean>;
+  overview: Record<string, string>;
 }
 
 export interface UsePyodideReturn {
@@ -40,13 +41,15 @@ const SETUP_CODE = `
 import json
 from pathlib import Path
 from submission_validator.validator import run_tier1_checks, run_tier2_checks
+from submission_validator.overview import get_overview
 
 def validate(pdb_content):
     path = Path("/tmp/upload.pdb")
     path.write_text(pdb_content)
     t1 = run_tier1_checks(path)
     t2 = run_tier2_checks(path)
-    return json.dumps({"tier1": t1, "tier2": t2})
+    overview = get_overview(path)
+    return json.dumps({"tier1": t1, "tier2": t2, "overview": overview})
 `;
 
 export function usePyodide(): UsePyodideReturn {

@@ -3,6 +3,7 @@ import logging
 import sys
 
 from submission_validator.logging_config import configure_logging
+from submission_validator.overview import get_overview
 from submission_validator.validator import run_tier1_checks, run_tier2_checks
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,13 @@ def main():
 
     configure_logging(verbose=args.verbose)
 
+    overview = get_overview(args.pdb_file)
     tier1_results = run_tier1_checks(args.pdb_file)
     tier2_results = run_tier2_checks(args.pdb_file)
+
+    logger.info("Overview")
+    for key, value in overview.items():
+        logger.info("  %s: %s", key, value)
 
     logger.info("Tier 1")
     for name, passed in tier1_results.items():
