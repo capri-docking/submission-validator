@@ -52,6 +52,44 @@ def _parse_heavy_atoms_by_chain(file_path: Path) -> dict[str, np.ndarray]:
     }
 
 
+def _parse_heavy_atoms_by_model(
+    file_path: Path,
+) -> list[dict[str, np.ndarray]]:
+    """
+    Parse ATOM records grouped by MODEL record, then by chain.
+    Files without MODEL records are treated as a single model.
+
+    Returns:
+        list of dicts, one per model, each mapping chain id to (N, 3) coordinate array.
+    """
+    models: list[dict[str, list[tuple[float, float, float]]]] = []
+    current: dict[str, list[tuple[float, float, float]]] = {}
+
+    with open(file_path, "r") as f:
+        for line in f:
+            record = line[:6]
+            if record == "MODEL ":
+                current = {}
+            elif record == "ENDMDL":
+                if current:
+                    models.append(current)
+                current = {}
+            elif record == "ATOM  ":
+                if _is_hydrogen(line):
+                    continue
+                chain = line[21] if len(line) > 21 else " "
+                x, y, z = float(line[30:38]), float(line[38:46]), float(line[46:54])
+                current.setdefault(chain, []).append((x, y, z))
+
+    if current:  # no MODEL records, or atoms after last ENDMDL
+        models.append(current)
+
+    return [
+        {chain: np.array(coords, dtype=float) for chain, coords in m.items()}
+        for m in models
+    ]
+
+
 def _pairwise_distances(coords_a: np.ndarray, coords_b: np.ndarray) -> np.ndarray:
     """Return the (N, M) matrix of distances between two sets of coordinates."""
     diff = coords_a[:, np.newaxis, :] - coords_b[np.newaxis, :, :]
@@ -92,40 +130,63 @@ def check_chains_in_contact(file_path: Path) -> CheckResult:
         return CheckResult(passed=False, message=str(e))
 
 
+def _clash_percent_for_model(model: dict[str, np.ndarray]) -> float | None:
+    """Return clash % for one model, or None if there are no inter-chain contacts."""
+    chain_ids = list(model)
+    contact_pairs = 0
+    clash_pairs = 0
+    for i, chain_a in enumerate(chain_ids):
+        for chain_b in chain_ids[i + 1 :]:
+            distances = _pairwise_distances(model[chain_a], model[chain_b])
+            contact_pairs += int(np.count_nonzero(distances < CONTACT_DISTANCE))
+            clash_pairs += int(np.count_nonzero(distances < CLASH_DISTANCE))
+    if contact_pairs == 0:
+        return None
+    return clash_pairs / contact_pairs * 100
+
+
 def check_clash_percentage(file_path: Path) -> CheckResult:
     """
     Check that the percentage of clashing inter-chain heavy-atom pairs (distance
     < CLASH_DISTANCE) among all contact pairs (distance < CONTACT_DISTANCE) does
     not exceed MAX_CLASH_PERCENT.
 
+    Always reports the observed min/max clash % across all models in the message.
+
     Returns:
         CheckResult: passed=True if the clash percentage is within the allowed threshold
     """
     try:
-        chains = _parse_heavy_atoms_by_chain(file_path)
-        chain_ids = list(chains)
+        models = _parse_heavy_atoms_by_model(file_path)
 
-        contact_pairs = 0
-        clash_pairs = 0
-        for i, chain_a in enumerate(chain_ids):
-            for chain_b in chain_ids[i + 1 :]:
-                distances = _pairwise_distances(chains[chain_a], chains[chain_b])
-                contact_pairs += int(np.count_nonzero(distances < CONTACT_DISTANCE))
-                clash_pairs += int(np.count_nonzero(distances < CLASH_DISTANCE))
+        per_model: list[float] = []
+        for model in models:
+            pct = _clash_percent_for_model(model)
+            if pct is not None:
+                per_model.append(pct)
 
-        if contact_pairs == 0:
-            return CheckResult(passed=True)
+        if not per_model:
+            return CheckResult(passed=False, message="No inter-chain contacts found")
 
-        clash_percent = clash_pairs / contact_pairs * 100
-        if clash_percent <= MAX_CLASH_PERCENT:
-            return CheckResult(passed=True)
-        return CheckResult(
-            passed=False,
-            message=(
-                f"Clash percentage {clash_percent:.1f}% exceeds "
-                f"maximum {MAX_CLASH_PERCENT}%"
-            ),
-        )
+        min_clash = min(per_model)
+        max_clash = max(per_model)
+        n = len(per_model)
+
+        if n == 1:
+            msg = (
+                f"Clash percentage: {per_model[0]:.1f}% "
+                f"(max allowed: {MAX_CLASH_PERCENT}%)"
+            )
+        else:
+            msg = (
+                f"Clash percentage across {n} models: "
+                f"min {min_clash:.1f}%, max {max_clash:.1f}% "
+                f"(max allowed: {MAX_CLASH_PERCENT}%)"
+            )
+
+        if max_clash > MAX_CLASH_PERCENT:
+            return CheckResult(passed=False, message=msg)
+        return CheckResult(passed=True, message=msg)
     except Exception as e:
         logger.error("Error checking clash percentage: %s", e)
         return CheckResult(passed=False, message=str(e))

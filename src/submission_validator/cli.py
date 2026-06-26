@@ -32,14 +32,14 @@ def main():
     for name, result in tier1_results.items():
         status = "✅" if result.passed else "❌"
         logger.info("%s %s", status, name)
-        if not result.passed and result.message:
+        if result.message:
             logger.info("   → %s", result.message)
 
     logger.info("Tier 2")
     for name, result in tier2_results.items():
         status = "✅" if result.passed else "❌"
         logger.info("%s %s", status, name)
-        if not result.passed and result.message:
+        if result.message:
             logger.info("   → %s", result.message)
 
     if all(tier1_results.values()) and all(tier2_results.values()):
