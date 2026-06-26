@@ -215,3 +215,4 @@ GEMINI.md
 .cursor/
 .windsurfrules
 .aider*
+/web/node_modules
