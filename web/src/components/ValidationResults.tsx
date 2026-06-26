@@ -19,8 +19,15 @@ function CheckRow({
     <div className="flex items-start justify-between py-2.5 border-b border-gray-100 last:border-0">
       <div className="min-w-0 flex-1">
         <span className="text-sm text-gray-700">{name}</span>
-        {!passed && message && (
-          <pre className="text-xs text-red-500 mt-1 whitespace-pre-wrap font-mono bg-red-50 rounded p-2 max-h-40 overflow-y-auto">
+        {message && (
+          <pre
+            className={[
+              "text-xs mt-1 whitespace-pre-wrap font-mono rounded p-2 max-h-40 overflow-y-auto",
+              passed
+                ? "text-gray-500 bg-gray-50"
+                : "text-red-500 bg-red-50",
+            ].join(" ")}
+          >
             {message}
           </pre>
         )}
