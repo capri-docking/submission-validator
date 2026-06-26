@@ -31,20 +31,27 @@ export interface ValidationResult {
   overview: Record<string, string>;
 }
 
+export interface FixResult extends ValidationResult {
+  fixed_content: string;
+}
+
 export interface UsePyodideReturn {
   ready: boolean;
   loading: boolean;
   loadingMessage: string;
   error: string | null;
   validate: ((pdbContent: string) => Promise<ValidationResult>) | null;
+  fix: ((pdbContent: string) => Promise<FixResult>) | null;
 }
 
 const PYODIDE_VERSION = "0.27.0";
 const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
 
 const SETUP_CODE = `
+import io
 import json
 from pathlib import Path
+from pdbtools import pdb_tidy
 from submission_validator.validator import run_tier1_checks, run_tier2_checks
 from submission_validator.overview import get_overview
 
@@ -58,6 +65,15 @@ def validate(pdb_content):
     t2 = {k: _r(v) for k, v in run_tier2_checks(path).items()}
     overview = get_overview(path)
     return json.dumps({"tier1": t1, "tier2": t2, "overview": overview})
+
+def fix(pdb_content):
+    fixed = "".join(pdb_tidy.run(io.StringIO(pdb_content)))
+    fixed_path = Path("/tmp/fixed.pdb")
+    fixed_path.write_text(fixed)
+    t1 = {k: _r(v) for k, v in run_tier1_checks(fixed_path).items()}
+    t2 = {k: _r(v) for k, v in run_tier2_checks(fixed_path).items()}
+    overview = get_overview(fixed_path)
+    return json.dumps({"fixed_content": fixed, "tier1": t1, "tier2": t2, "overview": overview})
 `;
 
 export function usePyodide(): UsePyodideReturn {
@@ -140,5 +156,14 @@ export function usePyodide(): UsePyodideReturn {
       }
     : null;
 
-  return { ready, loading, loadingMessage, error, validate };
+  const fix = pyodide
+    ? async (pdbContent: string): Promise<FixResult> => {
+        const pyFix = pyodide.globals.get("fix");
+        if (!pyFix) throw new Error("fix function not available");
+        const resultJson = pyFix(pdbContent);
+        return JSON.parse(resultJson) as FixResult;
+      }
+    : null;
+
+  return { ready, loading, loadingMessage, error, validate, fix };
 }

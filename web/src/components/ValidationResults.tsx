@@ -4,6 +4,10 @@ interface Props {
   filename: string;
   result: ValidationResult;
   validating: boolean;
+  onFix?: () => void;
+  fixing?: boolean;
+  fixAttempted?: boolean;
+  onDownloadFixed?: () => void;
 }
 
 function CheckRow({
@@ -92,7 +96,15 @@ function Overview({ data }: { data: Record<string, string> }) {
   );
 }
 
-export function ValidationResults({ filename, result, validating }: Props) {
+export function ValidationResults({
+  filename,
+  result,
+  validating,
+  onFix,
+  fixing,
+  fixAttempted,
+  onDownloadFixed,
+}: Props) {
   const allChecks = [
     ...Object.values(result.tier1),
     ...Object.values(result.tier2),
@@ -121,13 +133,38 @@ export function ValidationResults({ filename, result, validating }: Props) {
 
       <div
         className={[
-          "px-4 py-3 text-sm font-semibold tracking-widest text-center border-t",
+          "px-4 py-3 text-sm font-semibold border-t flex items-center justify-between",
           passed
             ? "bg-green-50 text-green-700 border-green-100"
             : "bg-red-50 text-red-700 border-red-100",
         ].join(" ")}
       >
-        {passed ? "PASSED" : "FAILED"}
+        <span className="tracking-widest">{passed ? "PASSED" : "FAILED"}</span>
+
+        {!passed && (
+          onFix ? (
+            <button
+              onClick={onFix}
+              disabled={fixing}
+              className="text-xs font-medium px-3 py-1 rounded border border-red-300 bg-white text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {fixing ? "Fixing..." : "Try to fix"}
+            </button>
+          ) : fixAttempted ? (
+            <span className="text-xs font-normal opacity-60">
+              Could not automatically fix
+            </span>
+          ) : null
+        )}
+
+        {passed && onDownloadFixed && (
+          <button
+            onClick={onDownloadFixed}
+            className="text-xs font-medium px-3 py-1 rounded border border-green-300 bg-white text-green-700 hover:bg-green-50 transition-colors"
+          >
+            Download fixed
+          </button>
+        )}
       </div>
     </div>
   );
