@@ -26,7 +26,7 @@ function TierSection({
 }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">
+      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
         {label}
       </p>
       <div className="divide-y divide-gray-100">
@@ -65,7 +65,7 @@ export function ValidationResults({ filename, result, validating }: Props) {
 
       <div
         className={[
-          "px-4 py-3 text-sm font-semibold text-center border-t",
+          "px-4 py-3 text-sm font-semibold tracking-widest text-center border-t",
           passed
             ? "bg-green-50 text-green-700 border-green-100"
             : "bg-red-50 text-red-700 border-red-100",

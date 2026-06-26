@@ -102,6 +102,7 @@ export function usePyodide(): UsePyodideReturn {
         await py.runPythonAsync(SETUP_CODE);
         if (cancelled) return;
 
+        console.log("Pyodide ready");
         setPyodide(py);
         setReady(true);
         setLoading(false);

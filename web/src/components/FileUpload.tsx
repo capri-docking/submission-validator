@@ -48,7 +48,7 @@ export function FileUpload({ disabled, onFile }: Props) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       className={[
-        "border-2 border-dashed rounded-lg px-8 py-12 text-center transition-colors",
+        "border-2 border-dashed rounded-lg px-8 py-10 text-center transition-colors",
         disabled
           ? "border-gray-200 text-gray-300 cursor-not-allowed"
           : dragging
@@ -69,9 +69,7 @@ export function FileUpload({ disabled, onFile }: Props) {
           ? "Waiting for Python environment..."
           : "Drop a PDB file here, or click to browse"}
       </p>
-      <p className="text-xs mt-1 opacity-60">
-        Accepts .pdb, .ent, or plain text PDB files
-      </p>
+      <p className="text-xs mt-1 opacity-60">Accepts .pdb, .ent, or plain text PDB files</p>
     </div>
   );
 }

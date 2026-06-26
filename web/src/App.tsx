@@ -4,6 +4,7 @@ import type { ValidationResult } from "./hooks/usePyodide.ts";
 import { FileUpload } from "./components/FileUpload.tsx";
 import { ValidationResults } from "./components/ValidationResults.tsx";
 import { LoadingSpinner } from "./components/LoadingSpinner.tsx";
+import { Navbar } from "./components/Navbar.tsx";
 
 export default function App() {
   const { ready, loading, loadingMessage, error, validate } = usePyodide();
@@ -29,32 +30,31 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-100 pt-20 px-4 pb-24">
+      <Navbar />
       <div className="max-w-xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            CAPRI Submission Validator
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Validate docking PDB submissions in your browser — no server
-            required.
-          </p>
-        </div>
-
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-          <div className="min-h-5">
-            {loading && <LoadingSpinner message={loadingMessage} />}
-            {error && (
-              <p className="text-sm text-red-600">
-                Failed to load Python environment: {error}
-              </p>
-            )}
-            {ready && (
-              <p className="text-sm text-green-600">
-                Python environment ready.
-              </p>
-            )}
+          <div className="space-y-1">
+            <h2 className="text-base font-semibold text-gray-800">
+              Validate your docking submission
+            </h2>
+            <p className="text-sm text-gray-500">
+              Upload a PDB file to check whether your CAPRI docking submission
+              meets the required format and structural criteria. Checks are
+              run locally in your browser — no data leaves your machine.
+            </p>
           </div>
+
+          {(loading || error) && (
+            <div>
+              {loading && <LoadingSpinner message={loadingMessage} />}
+              {error && (
+                <p className="text-sm text-red-600">
+                  Failed to load Python environment: {error}
+                </p>
+              )}
+            </div>
+          )}
 
           <FileUpload disabled={!ready} onFile={(c, n) => void handleFile(c, n)} />
 
@@ -78,20 +78,22 @@ export default function App() {
             </div>
           )}
         </div>
+      </div>
 
-        <p className="text-center text-xs text-gray-400">
-          Runs entirely in your browser via{" "}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4">
+        <p className="max-w-xl mx-auto text-center text-xs text-gray-400">
+          &copy; {new Date().getFullYear()} CAPRI — Critical Assessment of
+          Predicted Interactions &middot; built by{" "}
           <a
-            href="https://pyodide.org"
+            href="https://rvhonorato.me"
             target="_blank"
             rel="noopener noreferrer"
             className="underline hover:text-gray-600"
           >
-            Pyodide
+            Rodrigo V Honorato
           </a>
-          . No data is uploaded - your results remain confidential.
         </p>
-      </div>
+      </footer>
     </div>
   );
 }
