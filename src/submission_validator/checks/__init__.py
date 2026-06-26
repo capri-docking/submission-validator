@@ -15,6 +15,6 @@ TIER1_CHECKS = (
 )
 
 TIER2_CHECKS = (
-    ("Chains not in contact", check_chains_in_contact),
+    ("Chains in contact", check_chains_in_contact),
     ("% of clashes", check_clash_percentage),
 )

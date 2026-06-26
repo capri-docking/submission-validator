@@ -70,7 +70,7 @@ def test_run_tier2_checks_reports_each_check(atom_line, write_pdb):
     test_file = write_pdb(lines)
 
     results = run_tier2_checks(file_path=test_file)
-    assert set(results) == {"Chains not in contact", "% of clashes"}
+    assert set(results) == {"Chains in contact", "% of clashes"}
     assert all(results.values())
 
 
@@ -83,4 +83,4 @@ def test_run_tier2_checks_flags_isolated_chain(atom_line, write_pdb):
     test_file = write_pdb(lines)
 
     results = run_tier2_checks(file_path=test_file)
-    assert results["Chains not in contact"] is False
+    assert results["Chains in contact"] is False
